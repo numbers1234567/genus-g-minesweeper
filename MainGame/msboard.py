@@ -13,7 +13,7 @@ class MSTile:
      * list neighbors - a default list of neighbors for the tile
     """
     def __init__(self, hasmine, id_, revealed=False, flagged=False, neighbors=[]):
-        self.neighbors = neighbors
+        self.neighbors = [neigh for neigh in neighbors]
         self.hasmine = hasmine
         self.revealed = revealed
         self.flagged = flagged
@@ -43,7 +43,8 @@ class MSTile:
         if self.hasmine: return False
         if self.revealed: return True
         # Recursive flood fill
-        if self.num_adjacent_mines == 0: 
+        self.revealed = True
+        if True not in [neighbor.hasmine for neighbor in self.neighbors]: 
             for neighbor in self.neighbors: neighbor.reveal()
         
         return True
@@ -75,7 +76,7 @@ class MSBoard:
         for tile in self.tiles:
             for other in self.tiles:
                 if tile==other: continue
-                if neighbor_criteria(tile, other):
+                if self.neighbor_criteria(tile, other):
                     tile.add_neighbor(other)
                     other.add_neighbor(tile)
 
@@ -85,7 +86,7 @@ class MSBoard:
 
     """
     def neighbor_criteria(self, tile1, tile2):
-        pass
+        return abs(tile1.id-tile2.id)==1
 
     def tile_at(self, x, y):
         pass
@@ -97,7 +98,27 @@ class MSBoard:
      * 
     """
     def on_click(self, x, y, clicktype):
-        return self.on_click_reveal(x, y) if clicktype==self.CLICKREVEAL else self.on_click_toggleflag(x, y)
+        return self.on_click_reveal(self.tile_at(x, y)) if clicktype==self.CLICKREVEAL else self.on_click_toggleflag(self.tile_at(x, y))
     # Helper functions for the on_click function which can be overwritten for extra functionality
-    def on_click_toggleflag(self, x, y): return self.tile_at(x, y).toggle_flag()
-    def on_click_reveal(self, x, y): return self.tile_at(x, y).reveal()
+    def on_click_toggleflag(self, tile): return tile.toggle_flag()
+    def on_click_reveal(self, tile): return tile.reveal()
+
+if __name__=="__main__": # TESTS
+    from random import randint
+    print("=========\nTESTING MINELIST\n=========")
+    minelst = [True if randint(0,1)==0 else False for i in range(100)]
+    print("Mine list: " + str(minelst))
+    board = MSBoard(minelst)
+    # Is valid?
+    print("Correct mine positions: " + str(not (False in [minelst[i] == board.tiles[i].hasmine for i in range(len(minelst))])))
+    # Test clicking
+    print("Tile 0 has mine: " + str(board.tiles[0].hasmine))
+    print("Result of tile 0 click: " + str(board.on_click_reveal(board.tiles[0])))
+    # Test clicking
+    print("=========\nTESTING CLICKING\n=========")
+    minelst = [False for i in range(100)]
+    minelst[10] = True
+    board = MSBoard(minelst)
+    print("Tile 5 neighbors: " + str([neighbor.id for neighbor in board.tiles[5].get_neighbors()]))
+    print("Tile 5 reveal: " + str(board.on_click_reveal(board.tiles[5])))
+    print("Reveal list: " + str([tile.revealed for tile in board.tiles]))
