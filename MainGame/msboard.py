@@ -1,4 +1,4 @@
-
+import time
 """
 Bare bones, general implementation of a Minesweeper tile
 Contains the basic functions such as reveal (flood fill) and toggle_flag
@@ -26,7 +26,7 @@ class MSTile:
     def get_hasmine(self): return self.hasmine
     def get_id(self): return self.id
     def get_isflagged(self): return self.flagged
-    def get_num_adjacent_mines(self): return sum([1 if neighbor.hasmine else 0 for neighbor in neighbors])
+    def get_num_adjacent_mines(self): return sum([1 if neighbor.hasmine else 0 for neighbor in self.neighbors])
 
     """
     Add and store MSTile other
@@ -70,9 +70,25 @@ class MSBoard:
      * list tilelist_mine - A boolean list. Basically an id - is_a_mine dictionary.
      * class tile_class - The name of a subclass of MSTile to be used by the class
     """
-    def __init__(self, tilelist_mine, tile_class=MSTile):
+    def __init__(self, tilelist_mine, tile_class=MSTile, set_neighbors=True):
         self.tiles=[tile_class(tilelist_mine[i], i) for i in range(len(tilelist_mine))]
         # Set up neighbors
+        if set_neighbors:
+            self.setup_neighbors()
+
+    """
+    Returns whether or not tile1 and tile2 are neighbors.
+    Can be overridden in child classes
+    Parameters:
+     * MSTile tile1/tile2 - The two tiles which we are checking if they are neighbors
+    """
+    def neighbor_criteria(self, tile1, tile2):
+        return abs(tile1.id-tile2.id)==1
+
+    """
+    Sets up the neighbors attribute of the tiles
+    """
+    def setup_neighbors(self):
         for tile in self.tiles:
             for other in self.tiles:
                 if tile==other: continue
@@ -81,24 +97,22 @@ class MSBoard:
                     other.add_neighbor(tile)
 
     """
-    Returns whether or not tile1 and tile2 are neighbors
-    Parameters:
-
+    Returns the tile at the point (x, y)
     """
-    def neighbor_criteria(self, tile1, tile2):
-        return abs(tile1.id-tile2.id)==1
-
     def tile_at(self, x, y):
-        pass
+        return self.tiles[int(x)]
 
     """
     Process a single click.
+    Will call the on_click_toggleflag/reveal. Override those if you need.
     Parameters:
-     * float x & y: The point of the click
-     * 
+     * float x & y - The point of the click
+     * int clicktype - Either MSBoard.CLICKREVEAL or CLICKFLAG. Performs the respective operations.
     """
     def on_click(self, x, y, clicktype):
-        return self.on_click_reveal(self.tile_at(x, y)) if clicktype==self.CLICKREVEAL else self.on_click_toggleflag(self.tile_at(x, y))
+        tile = self.tile_at(x, y)
+        if tile==None: return True
+        return self.on_click_reveal(tile) if clicktype==self.CLICKREVEAL else self.on_click_toggleflag(tile)
     # Helper functions for the on_click function which can be overwritten for extra functionality
     def on_click_toggleflag(self, tile): return tile.toggle_flag()
     def on_click_reveal(self, tile): return tile.reveal()
