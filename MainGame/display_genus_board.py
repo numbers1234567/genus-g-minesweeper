@@ -1,6 +1,6 @@
 import pyglet
 import numpy as np
-from msboard_genus_surfaces import *
+from MainGame.msboard_genus_surfaces import *
 import time
 from math import sqrt
 

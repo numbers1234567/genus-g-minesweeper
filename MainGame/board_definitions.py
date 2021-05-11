@@ -1,6 +1,6 @@
 from pyglet.gl import GL_TRIANGLES, GL_LINES
 from pyglet.text import Label as pyglLabel
-from display_genus_board import *
+from MainGame.display_genus_board import *
 
 """
 Generate any arbitrary minesweeper board with genus

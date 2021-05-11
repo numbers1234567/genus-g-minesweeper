@@ -1,4 +1,4 @@
-import msboard
+from MainGame import msboard
 from math import sin, cos, pi, sqrt, ceil
 import numpy as np
 import time
@@ -59,7 +59,7 @@ Implementation of genus g board
 class MSGenusGBoard(msboard.MSBoard):
     def __init__(self, mine_locs, genus):
         self.genus = genus
-        self.numrows = int(sqrt(len(mine_locs)/(4*genus)))+1
+        self.numrows = int(sqrt(len(mine_locs)/(4*genus)))
         super().__init__(mine_locs, tile_class=MSGenusG)
 
     def neighbor_criteria(self, tile1, tile2):

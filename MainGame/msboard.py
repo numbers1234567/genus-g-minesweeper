@@ -40,6 +40,7 @@ class MSTile:
     """
     def reveal(self):
         # Basic cases
+        if self.flagged: return True
         if self.hasmine: return False
         if self.revealed: return True
         # Recursive flood fill
