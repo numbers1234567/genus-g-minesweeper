@@ -2,6 +2,7 @@ from MainGame import msboard
 from math import sin, cos, pi, sqrt, ceil
 import numpy as np
 import time
+from load_random_board import load_random_board
 
 """
 Basic helpers
@@ -65,7 +66,10 @@ class MSGenusGBoard(msboard.MSBoard):
     def neighbor_criteria(self, tile1, tile2):
         for coord1 in tile1.coordinates:
             for coord2 in tile2.coordinates:
-                if False not in list(coord1==coord2): return True
+                #print(coord1)
+                #print(coord2)
+                #if False not in list(coord1==coord2): return True
+                if coord1==coord2: return True
 
     def setup_neighbors(self):
         # Set up coordinates
@@ -115,6 +119,10 @@ class MSGenusGBoard(msboard.MSBoard):
                 tile1.add_neighbor(tile2)
                 tile2.add_neighbor(tile1)
 
+
+    """
+    Returns the tile at the coordinate (x, y) according to the board's coordinate system
+    """
     def tile_at(self, x, y):
         for tile in self.tiles:
             tri_coords = [list(coord) for coord in tile.coordinates]

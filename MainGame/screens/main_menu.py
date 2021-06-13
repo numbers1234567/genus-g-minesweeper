@@ -5,3 +5,5 @@ from pyglet.text import Label as pyglLabel
 class MainMenu(Screen):
     def __init__(self, **kwargs):
         pass
+
+    

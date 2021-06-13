@@ -1,7 +1,15 @@
 import time
+
 """
-Bare bones, general implementation of a Minesweeper tile
-Contains the basic functions such as reveal (flood fill) and toggle_flag
+Usage:
+This is an extremely bare bones implementation of a minesweeper board, very much like an abstract class.
+Every board contains a list of tiles, and each tile has an implementation-specific id.
+This id is used to perform basic operations on the board such as determining the coordinates of a tile and determining if it is neighboring another tile
+"""
+
+"""
+Bare bones, general implementation of a Minesweeper tile.
+Contains the basic functions such as reveal (flood fill) and toggle_flag.
 """
 class MSTile:
     """
@@ -60,7 +68,7 @@ class MSTile:
 
 """
 Bare bones, general implementation of Minesweeper board
-Subclasses must set what the criteria is for 2 neighboring tiles and implement the tile_at function
+Subclasses must set what the criteria is for 2 neighboring tiles and implement the tile_at function.
 """
 class MSBoard:
     CLICKREVEAL = 1
@@ -70,6 +78,7 @@ class MSBoard:
     Parameters:
      * list tilelist_mine - A boolean list. Basically an id - is_a_mine dictionary.
      * class tile_class - The name of a subclass of MSTile to be used by the class
+     * bool set_neighbors - Whether or not to set up the neighbors at this point
     """
     def __init__(self, tilelist_mine, tile_class=MSTile, set_neighbors=True):
         self.tiles=[tile_class(tilelist_mine[i], i) for i in range(len(tilelist_mine))]

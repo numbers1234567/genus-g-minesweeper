@@ -3,7 +3,8 @@ from pyglet.text import Label as pyglLabel
 from MainGame.display_genus_board import *
 
 """
-Generate any arbitrary minesweeper board with genus
+Generate the minesweeper board subclass with the given genus.
+Returns a tuple of form (tile graphics type, board type).
 """
 def genus_generate_compatible_class(genus):
     """Generate graphics class"""

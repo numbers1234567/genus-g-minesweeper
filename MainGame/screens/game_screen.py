@@ -3,7 +3,7 @@ import pyglet
 from pyglet.text import Label as pyglLabel
 
 """
-Main game container
+Main game container. Handles clicking and displaying logic
 """
 class Game:
     CLICKREVEAL=1
