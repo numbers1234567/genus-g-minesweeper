@@ -1,6 +1,6 @@
 # genus_g_minesweeper
  
-**How to play**
+## How to play
  
 usage: python play_game.py [genus] [# tiles] [# mines]
 
