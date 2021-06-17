@@ -1,8 +1,6 @@
 # genus_g_minesweeper
  
-usage: python main.py 2 200 50
-
-1st argument is the genus, 2nd argument is the number of tiles, 3rd argument is the number of mines
+usage: python play_game.py [genus] [# tiles] [# mines]
 
 Note: # tiles/(4 * genus) must be a perfect square
 
