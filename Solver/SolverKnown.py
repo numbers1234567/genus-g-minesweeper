@@ -3,8 +3,9 @@
 This is very much based on the MSBoard but designed to be easily interfaced
 """
 class SolverKnownTile(self):
-    TYPEFLAG = -1
-    TYPECLOSED = -2
+    TYPEFLAG = 1
+    TYPECLOSED = 2
+    TYPEOPEN = 0
     """
     class attributes:
         list neighbors: A list of neighbors of type SolverKnownTile
@@ -17,14 +18,22 @@ class SolverKnownTile(self):
         self.type = knowntype
         self.id = id_
         self.predict_type = self.type
-        self.equation = [0 for i in range(n_tiles_total+1)]
+        self.num_label = -1
 
+    """
+    Add SolverKnownTile other into the list of neighbors
+    """
     def add_neighbor(self, other):
         if other not in self.neighbors: self.neighbors.append(other)
-        self.equation[other.id_] = 1
 
+    """
+    Update the labeling of this tile
+    """
     def next_prediction(self, prediction_type):
         self.predict_type = prediction_type
+
+    def update_num_label(self, num_label):
+        self.num_label = num_label
 
 class SolverKnown:
     def __init__(self, tiletypes, solver_tile_class=SolverKnownTile, set_neighbors=True):
@@ -33,7 +42,8 @@ class SolverKnown:
             self.setup_neighbors()
 
     """
-    Main logical function to be overridden
+    Main logical function to be overridden.
+    Updates tiles by calling next_prediction
     """
     def predict(self):
         pass
@@ -51,3 +61,16 @@ class SolverKnown:
                 if self.neighbor_criteria(tile, other):
                     tile.add_neighbor(other)
                     other.add_neighbor(tile)
+    """
+    Updates tile labelling.
+    The input is a list of integers, indices corresponding to ids. -2 for unknown, -1 for flag, any nonnegative integer indicates number of surrounding mines.
+    """
+    def update(self, labels):
+        for i in range(len(labels)):
+            if labels[i] >= 0: 
+                self.tiles[i].type = self.tiles[i].TYPEOPEN
+                self.tiles[i].update_num_label(labels[i])
+            elif labels[i] == -1:
+                self.tiles[i].type = self.tiles[i].TYPEFLAG
+            elif labels[i] == -2:
+                self.tiles[i].type = self.tiles[i].TYPECLOSED
