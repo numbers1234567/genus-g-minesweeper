@@ -1,5 +1,7 @@
 # genus_g_minesweeper
  
+**How to play**
+ 
 usage: python play_game.py [genus] [# tiles] [# mines]
 
 Note: # tiles/(4 * genus) must be a perfect square
