@@ -1,10 +1,12 @@
-from Solver.SolverKnown import *
+from SolverKnown import *
 import numpy as np
 
 class CSPSolverTile(SolverKnownTile):
-    def __init__(self, id_, n_tiles_total, knowntype=SolverKnownTile.TYPECLOSED, neighbors=[]):
-        super().__init__(id_, n_tiles_total, knowntype=knowntype, neighbors=[neighbor for neighbor in neighbors])
+    def __init__(self, id_, knowntype=SolverKnownTile.TYPECLOSED, neighbors=[], **kwargs):
+        super().__init__(id_, knowntype=knowntype, neighbors=[neighbor for neighbor in neighbors], **kwargs)
+        n_tiles_total = kwargs["n_tiles_total"]
         self.equation = np.array([0 for i in range(n_tiles_total+1)])
+        self.unit_equation = np.array([0 for i in range(n_tiles_total+1)])
 
     """
     Add neighbor
@@ -31,15 +33,32 @@ class CSPSolverTile(SolverKnownTile):
         # All unknown
         return [-1 for i in var_section]
 
-    
+    """
+    The same as the super update_tile, but does some operations ith the equation
+    """
+    def update_tile(self, tile_type, num_label=-1, force_update=False):
+        old_state = self.type
+        super().update_tile(tile_type, num_label)
+        if old_state != self.type or force_update:
+            if self.type  == self.TYPEOPEN:
+                self.unit_equation[-1] = 0
+                self.equation[-1] = num_label
+                for tile in self.neighbors:
+                    self.equation[tile.id] = 1
+
+            elif self.type == self.TYPEFLAG:
+                self.unit_equation[-1] = 1
+
 
 """
 A very general implementation of CSP for any version of minesweeper.
 Still doesn't have a proper definition of the neighbor_criteria class for subclasses
 """
 class CSPSolver(SolverKnown):
-    def __init__(self, tiletypes, solver_tile_class=CSPSolverTile, set_neighbors=True):
-        super().__init__(tiletypes, solver_tile_class=solver_tile_class, set_neighbors=set_neighbors)
+    def __init__(self, tiletypes, solver_tile_class=CSPSolverTile, set_neighbors=True, **kwargs):
+        super().__init__(tiletypes, solver_tile_class=solver_tile_class, set_neighbors=set_neighbors, **kwargs)
+        for tile in self.tiles:
+            tile.update_tile(tile.type, num_label=tile.num_label, force_update=True)
 
     """
     Performs a solve.
@@ -49,7 +68,7 @@ class CSPSolver(SolverKnown):
     def next(self):
         made_update = False
         for tile in self.tiles:
-            for other in self.tiles:
+            for other in tile.neighbors:
                 if tile==other: continue
                 skip_elimination = False
                 for i in range(len(tile.equation)-1):
@@ -58,7 +77,19 @@ class CSPSolver(SolverKnown):
                 if skip_elimination: continue
                 tile.equation -= other.equation
                 made_update = True
-
+                if skip_elimination: continue
+        # Same thing with unit equation
+        for tile in self.tiles:
+            for other in tile.neighbors:
+                if tile==other: continue
+                skip_elimination = False
+                for i in range(len(tile.equation)-1):
+                    if other.unit_equation[i] == 1 and tile.equation[i] == 0: # Will result in a negative value
+                        skip_elimination = True
+                if skip_elimination: continue
+                tile.equation -= other.unit_equation
+                made_update = True
+                if skip_elimination: continue
         return made_update
 
     """

@@ -1,8 +1,7 @@
-
 """
 This is very much based on the MSBoard but designed to be easily interfaced
 """
-class SolverKnownTile(self):
+class SolverKnownTile:
     TYPEFLAG = 1
     TYPECLOSED = 2
     TYPEOPEN = 0
@@ -13,9 +12,12 @@ class SolverKnownTile(self):
         int self.id: index of tile for future computations
         int self.predict_type: The type of the tile after logical steps by the solver. Default has the same value as self.type
     """
-    def __init__(self, id_, n_tiles_total, knowntype=SolverKnownTile.TYPECLOSED, neighbors=[]):
+    def __init__(self, id_, knowntype=None, neighbors=[], **kwargs):
+        this_known_type = knowntype
+        if knowntype == None:
+            this_known_type = self.TYPECLOSED
         self.neighbors = [tile for tile in neighbors]
-        self.type = knowntype
+        self.type = this_known_type
         self.id = id_
         self.predict_type = self.type
         self.num_label = -1
@@ -35,9 +37,13 @@ class SolverKnownTile(self):
     def update_num_label(self, num_label):
         self.num_label = num_label
 
+    def update_tile(self, tile_type, num_label=-1):
+        self.type = tile_type
+        self.num_label = num_label
+
 class SolverKnown:
-    def __init__(self, tiletypes, solver_tile_class=SolverKnownTile, set_neighbors=True):
-        self.tiles = [solver_tile_class(id_=i, knowntype=tiletypes[i]) for i in range(len(tiletypes))]
+    def __init__(self, tiletypes, solver_tile_class=SolverKnownTile, set_neighbors=True, **kwargs):
+        self.tiles = [solver_tile_class(id_=i, knowntype=tiletypes[i], **kwargs) for i in range(len(tiletypes))]
         if set_neighbors:
             self.setup_neighbors()
 
@@ -68,9 +74,11 @@ class SolverKnown:
     def update(self, labels):
         for i in range(len(labels)):
             if labels[i] >= 0: 
-                self.tiles[i].type = self.tiles[i].TYPEOPEN
-                self.tiles[i].update_num_label(labels[i])
-            elif labels[i] == -1:
-                self.tiles[i].type = self.tiles[i].TYPEFLAG
-            elif labels[i] == -2:
-                self.tiles[i].type = self.tiles[i].TYPECLOSED
+                self.update_tile(self.tiles[i].TYPEOPEN, labels[i])
+            elif labels[i] == -self.tiles[i].TYPEFLAG:
+                self.update_tile(self.tiles[i].TYPEFLAG)
+            elif labels[i] == -self.tiles[i].TYPECLOSED:
+                self.update_tile(self.tiles[i].TYPECLOSED)
+
+if __name__=="__main__":
+    SolverKnown([])
