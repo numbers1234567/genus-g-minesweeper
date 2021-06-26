@@ -1,5 +1,5 @@
 
-from SolverCSP import *
+from Solver.SolverCSP import *
 from math import pi, sin, cos, sqrt
 
 """
@@ -78,10 +78,6 @@ class CSPSolverGenus(CSPSolver):
             first = []
             second = []
             for from_ in range(1, columns_final, 2):
-                """first.append(self.tiles[start+from_].coordinates[0])
-                second.append(self.tiles[start+3*columns_final-1-from_].coordinates[0])
-                first.append(self.tiles[start+from_+columns_final].coordinates[0])
-                second.append(self.tiles[start+4*columns_final-1-from_].coordinates[0])"""
                 first.append(tile_coordinates[start+from_][0])
                 second.append(tile_coordinates[start+3*columns_final-1-from_][0])
                 first.append(tile_coordinates[start+from_+columns_final][0])

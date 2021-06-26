@@ -40,12 +40,16 @@ class SolverKnownTile:
     def update_tile(self, tile_type, num_label=-1):
         self.type = tile_type
         self.num_label = num_label
+        self.next_prediction(tile_type)
 
 class SolverKnown:
     def __init__(self, tiletypes, solver_tile_class=SolverKnownTile, set_neighbors=True, **kwargs):
         self.tiles = [solver_tile_class(id_=i, knowntype=tiletypes[i], **kwargs) for i in range(len(tiletypes))]
         if set_neighbors:
             self.setup_neighbors()
+
+    def next(self):
+        pass
 
     """
     Main logical function to be overridden.
@@ -74,11 +78,11 @@ class SolverKnown:
     def update(self, labels):
         for i in range(len(labels)):
             if labels[i] >= 0: 
-                self.update_tile(self.tiles[i].TYPEOPEN, labels[i])
+                self.tiles[i].update_tile(self.tiles[i].TYPEOPEN, labels[i])
             elif labels[i] == -self.tiles[i].TYPEFLAG:
-                self.update_tile(self.tiles[i].TYPEFLAG)
+                self.tiles[i].update_tile(self.tiles[i].TYPEFLAG)
             elif labels[i] == -self.tiles[i].TYPECLOSED:
-                self.update_tile(self.tiles[i].TYPECLOSED)
+                self.tiles[i].update_tile(self.tiles[i].TYPECLOSED)
 
 if __name__=="__main__":
     SolverKnown([])

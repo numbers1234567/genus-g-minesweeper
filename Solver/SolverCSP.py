@@ -1,4 +1,4 @@
-from SolverKnown import *
+from Solver.SolverKnown import *
 import numpy as np
 
 class CSPSolverTile(SolverKnownTile):
@@ -26,6 +26,7 @@ class CSPSolverTile(SolverKnownTile):
     """
     def eq_knowns(self):
         var_section = self.equation[:-1]
+        if self.type != self.TYPEOPEN: return [-1 for i in var_section]
         # All mines
         if sum(var_section) == self.equation[-1]: return [1 if variable==1 else -1 for variable in var_section]
         # No mines
@@ -41,13 +42,15 @@ class CSPSolverTile(SolverKnownTile):
         super().update_tile(tile_type, num_label)
         if old_state != self.type or force_update:
             if self.type  == self.TYPEOPEN:
-                self.unit_equation[-1] = 0
                 self.equation[-1] = num_label
                 for tile in self.neighbors:
                     self.equation[tile.id] = 1
-
-            elif self.type == self.TYPEFLAG:
-                self.unit_equation[-1] = 1
+        if self.type == self.TYPEOPEN:
+            self.unit_equation[-1] = 0
+            self.unit_equation[self.id] = 1
+        elif self.type == self.TYPEFLAG:
+            self.unit_equation[self.id] = 1
+            self.unit_equation[-1] = 1
 
 
 """
@@ -68,28 +71,35 @@ class CSPSolver(SolverKnown):
     def next(self):
         made_update = False
         for tile in self.tiles:
-            for other in tile.neighbors:
-                if tile==other: continue
+            if tile.type != tile.TYPEOPEN: continue
+            for other in self.tiles:
+                if tile==other or other.type != other.TYPEOPEN: continue
                 skip_elimination = False
                 for i in range(len(tile.equation)-1):
                     if other.equation[i] == 1 and tile.equation[i] == 0: # Will result in a negative value
                         skip_elimination = True
                 if skip_elimination: continue
+                if np.sum(other.equation)==0: continue
                 tile.equation -= other.equation
                 made_update = True
                 if skip_elimination: continue
         # Same thing with unit equation
         for tile in self.tiles:
-            for other in tile.neighbors:
-                if tile==other: continue
+            if tile.type != tile.TYPEOPEN: continue
+            for other in self.tiles:
+                if other.type != other.TYPEOPEN: continue
                 skip_elimination = False
                 for i in range(len(tile.equation)-1):
                     if other.unit_equation[i] == 1 and tile.equation[i] == 0: # Will result in a negative value
                         skip_elimination = True
                 if skip_elimination: continue
+                if np.sum(other.unit_equation)==0: continue
                 tile.equation -= other.unit_equation
                 made_update = True
                 if skip_elimination: continue
+        """for tile in self.tiles:
+            print(tile.id)
+            print(tile.equation)"""
         return made_update
 
     """
