@@ -10,3 +10,4 @@ Here's a short demo playing the game:
 
 https://user-images.githubusercontent.com/33708611/122474158-71ff7100-cf88-11eb-95ef-bff39b935f6e.mov
 
+If you press any key, it will perform a single solve step.
