@@ -7,6 +7,7 @@ from MainGame.screens.main_menu import MainMenu
 from Solver.SolverCSPGenus import *
 from random import randint
 from math import cos
+import time
 import sys
 
 board_type, board_graphics = genus_generate_compatible_class(int(sys.argv[1]))
@@ -71,13 +72,16 @@ class Main(pyglet.window.Window):
 
     def on_key_press(self, symbol, modifiers):
         self.current_screen.on_key_press(symbol, modifiers)
-        while self.solver.predict(): x=1
-        
+        start = time.time()
+        times = 0
+        self.solver.predict()
+        print(time.time()-start)
+        print(times)
         pred = self.solver.get_predictions()
         for i in range(len(pred)):
-            print("%d: %d" % (i, pred[i]))
-            print(self.solver.tiles[i].equation)
-            print(self.solver.tiles[i].unit_equation)
+            #print("%d: %d" % (i, pred[i]))
+            #print(self.solver.tiles[i].equation)
+            #print(self.solver.tiles[i].unit_equation)
             if pred[i] == 0: self.board.on_click_reveal(self.board.tiles[i])
             elif pred[i] == 1 and not self.board.tiles[i].flagged: self.board.on_click_toggleflag(self.board.tiles[i])
         self.update_solver()

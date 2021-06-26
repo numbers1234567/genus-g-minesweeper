@@ -7,6 +7,7 @@ class CSPSolverTile(SolverKnownTile):
         n_tiles_total = kwargs["n_tiles_total"]
         self.equation = np.array([0 for i in range(n_tiles_total+1)])
         self.unit_equation = np.array([0 for i in range(n_tiles_total+1)])
+        self.deg_2_neighbors = [] # All tiles which are separated by at most 1 neighbor to this tile
 
     """
     Add neighbor
@@ -62,6 +63,13 @@ class CSPSolver(SolverKnown):
         super().__init__(tiletypes, solver_tile_class=solver_tile_class, set_neighbors=set_neighbors, **kwargs)
         for tile in self.tiles:
             tile.update_tile(tile.type, num_label=tile.num_label, force_update=True)
+        for tile in self.tiles:
+            for neighbor in tile.neighbors:
+                tile.deg_2_neighbors.append(neighbor)
+                for deg_2_tile in neighbor.neighbors:
+                    if deg_2_tile in tile.deg_2_neighbors or deg_2_tile==tile: continue
+                    tile.deg_2_neighbors.append(deg_2_tile)
+            print([f.id for f in tile.deg_2_neighbors])
 
     """
     Performs a solve.
@@ -72,7 +80,7 @@ class CSPSolver(SolverKnown):
         made_update = False
         for tile in self.tiles:
             if tile.type != tile.TYPEOPEN: continue
-            for other in self.tiles:
+            for other in tile.deg_2_neighbors:
                 if tile==other or other.type != other.TYPEOPEN: continue
                 skip_elimination = False
                 for i in range(len(tile.equation)-1):
@@ -86,8 +94,7 @@ class CSPSolver(SolverKnown):
         # Same thing with unit equation
         for tile in self.tiles:
             if tile.type != tile.TYPEOPEN: continue
-            for other in self.tiles:
-                if other.type != other.TYPEOPEN: continue
+            for other in tile.deg_2_neighbors:
                 skip_elimination = False
                 for i in range(len(tile.equation)-1):
                     if other.unit_equation[i] == 1 and tile.equation[i] == 0: # Will result in a negative value
