@@ -15,4 +15,4 @@ If you press any key, it will perform a single solve step.
 ## Problems I'm thinking about
 
  * Is it possible to implement graph neural networks to predict the probability a tile is a mine? What about other machine learning structures?
- * The idea of using machine learning here is to learn high-level patterns to predict whether a tile contains a mine. Given the graph of a tile's neighborhood, is it possible to automatically classify the pattern required to predict the tile?
+ * The idea of using machine learning here is to learn patterns to predict whether a tile contains a mine. Given the graph of a tile's neighborhood, is it possible to automatically classify the pattern required to predict the tile?
