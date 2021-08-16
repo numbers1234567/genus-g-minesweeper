@@ -83,6 +83,11 @@ class SolverKnown:
                 self.tiles[i].update_tile(self.tiles[i].TYPEFLAG)
             elif labels[i] == -self.tiles[i].TYPECLOSED:
                 self.tiles[i].update_tile(self.tiles[i].TYPECLOSED)
+    """
+    Returns the current known predictions of the solver
+    """
+    def get_predictions(self):
+        return [tile.predict_type for tile in self.tiles]
 
 if __name__=="__main__":
     SolverKnown([])

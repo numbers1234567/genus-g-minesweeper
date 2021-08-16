@@ -69,7 +69,7 @@ class CSPSolver(SolverKnown):
                 for deg_2_tile in neighbor.neighbors:
                     if deg_2_tile in tile.deg_2_neighbors or deg_2_tile==tile: continue
                     tile.deg_2_neighbors.append(deg_2_tile)
-            print([f.id for f in tile.deg_2_neighbors])
+            #print([f.id for f in tile.deg_2_neighbors])
 
     """
     Performs a solve.
@@ -120,8 +120,5 @@ class CSPSolver(SolverKnown):
                 # Known
                 if tile_knowns[i] == 1 or tile_knowns[i] == 0: self.tiles[i].next_prediction(tile_knowns[i])
         return made_update
-
-    def get_predictions(self):
-        return [tile.predict_type for tile in self.tiles]
 
     
