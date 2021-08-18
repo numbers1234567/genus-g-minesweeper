@@ -1,7 +1,7 @@
 # revealed : 0, unknown : 1, flagged : 2
 import sys
 sys.path.append("..")
-from MainGame.board_definitions import *
+from board_definitions import *
 from Solver.SolverCSPGenus import *
 from random import randint, shuffle
 
@@ -110,7 +110,7 @@ def train_generator(num_concurrent=10, geni=[2], possible_num_tiles=[[32, 72, 12
         
         # Set up solver
         solvers.append(CSPSolverGenus(boards[i].genus, [2 for i in range(n)]))
-        update_solver(solvers[i], boards[i])
+        #update_solver(solvers[i], boards[i])
 
         # Further randomize the board state (might do something other than solve, since that's expensive)
         for _ in range(randint(0, 4)): boards[i], solvers[i] = board_step(boards[i], solvers[i], board_types, num_tiles)
@@ -122,7 +122,6 @@ def train_generator(num_concurrent=10, geni=[2], possible_num_tiles=[[32, 72, 12
         yield ret
         # Single solve step (might do something other than solve, since that's expensive)
         for i in range(len(boards)):
-            print(i)
             boards[i], solvers[i] = board_step(boards[i], solvers[i], board_types, num_tiles)
 
 """
@@ -137,14 +136,25 @@ def update_solver(solver, board):
 
     solver.update(new_labels)
 
+def board_step_reveal(tile):
+    # Return whether or not to open the tile in board_step
+    if tile.revealed: return 0
+    if tile.flagged: return 1
+    if tile.hasmine:
+        if True in [neighbor.revealed for neighbor in tile.get_neighbors()]: return 1
+        return 2
+    if True in [neighbor.revealed for neighbor in tile.get_neighbors()]: return 0
+    return 2
+
+
 """
 Single solve step on board and solver.
 Returns (msboard, solver) if another step is needed
 Returns a new (msboard, solver) if no new step is needed
 """
 def board_step(msboard, solver, board_types, num_tiles):
-    solver.predict()
-    pred = solver.get_predictions()
+    #solver.predict()
+    pred = [board_step_reveal(tile) for tile in msboard.tiles]
 
     # Update board
     for i in range(len(pred)):
@@ -153,11 +163,13 @@ def board_step(msboard, solver, board_types, num_tiles):
     if 2 not in pred: # A new msboard and solver is needed
         index = randint(0, len(board_types)-1)
         n = num_tiles[index][randint(0, len(num_tiles[index])-1)]
-        mine_locs = load_random_board(board_types[index], n, randint(n//10, n//4), firstclick_id=randint(0, n-1))
+        first_click = randint(0, n-1)
+        mine_locs = load_random_board(board_types[index], n, randint(n//10, n//4), firstclick_id=first_click)
         msboard = board_types[index](mine_locs)
-        solver = CSPSolverGenus(msboard.genus, [2 for i in range(n)])
+        msboard.on_click_reveal(msboard.tiles[first_click])
+        #solver = CSPSolverGenus(msboard.genus, [2 for i in range(n)])
 
     # Update solver
-    update_solver(solver, msboard)
+    #update_solver(solver, msboard)
 
     return (msboard, solver)
