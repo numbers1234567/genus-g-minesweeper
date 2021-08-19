@@ -109,7 +109,7 @@ def train_generator(num_concurrent=10, geni=[2], possible_num_tiles=[[32, 72, 12
         boards[i].on_click_reveal(boards[i].tiles[first_click])
         
         # Set up solver
-        solvers.append(CSPSolverGenus(boards[i].genus, [2 for i in range(n)]))
+        solvers.append(-1)
         #update_solver(solvers[i], boards[i])
 
         # Further randomize the board state (might do something other than solve, since that's expensive)
@@ -119,10 +119,10 @@ def train_generator(num_concurrent=10, geni=[2], possible_num_tiles=[[32, 72, 12
         # Yield all graphs for training
         ret = [(whole_gen_graph_solver_data(board), whole_gen_graph_solver_data(board, unknown=False)) for board in boards]
         shuffle(ret)
-        yield ret
         # Single solve step (might do something other than solve, since that's expensive)
         for i in range(len(boards)):
             boards[i], solvers[i] = board_step(boards[i], solvers[i], board_types, num_tiles)
+        yield ret
 
 """
 Update solver to correspond with board
@@ -168,7 +168,6 @@ def board_step(msboard, solver, board_types, num_tiles):
         msboard = board_types[index](mine_locs)
         msboard.on_click_reveal(msboard.tiles[first_click])
         #solver = CSPSolverGenus(msboard.genus, [2 for i in range(n)])
-
     # Update solver
     #update_solver(solver, msboard)
 
